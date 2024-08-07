@@ -1,0 +1,43 @@
+class RestaurantReservation:
+    def __init__(self, guest_name, number_of_guests, is_vip):
+        self.guest_name=guest_name
+        self.number_of_guests=number_of_guests
+        self.is_vip=is_vip
+        
+    def calculate_cost(self):
+        cost_per_person=40
+        if self.is_vip:
+            cost_per_person=50
+        return self.number_of_guests*cost_per_person
+    
+    def print_reservation_details(self):
+        print(f'Guest Name: {self.guest_name}')
+        print(f'Number of Guests: {self.number_of_guests}')
+        print(f'VIP: {'Yes' if self.is_vip else 'No'}')
+        print(f'Total Cost: ${self.calculate_cost()}')
+        
+def main():
+    print('Welcome to the Restaurant Reservation System')
+        
+    guest_name=input('Enter Guest Name: ')
+    number_of_guests=int(input('Enter Number of Guests: '))
+    is_vip=input('Is the guest a vip?(True/False: ' ).lower()=='true'
+    
+    reservation=RestaurantReservation(guest_name, number_of_guests, is_vip)
+    reservation.print_reservation_details()
+    
+    if number_of_guests>10:
+        print('You quolify for a 10% discount for your total cost')
+        discounted_cost=reservation.calculate_cost()*0.1
+        print(f'Discounted total cost{discounted_cost}')
+    elif number_of_guests<1:
+        print('Invalid number of guest')
+    else:
+        print('Thank you for the reservation')
+    
+    if is_vip and number_of_guests>5:
+        print('As a vip guest with more than 5 guests you get a free dessert for everyone')
+        
+    
+if __name__=='__main__':
+    main()
