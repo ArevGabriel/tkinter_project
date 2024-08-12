@@ -1,0 +1,80 @@
+class Animal:
+    def __init__(self,name, species):
+        self.name=name
+        self.species=species
+        
+    def make_sound(self):
+        return 'Some generic animal sound'
+    
+    def move(self):
+        return f'{self.name} is moving'
+    
+    def sleep(self):
+        return f'{self.name} is sleeping'
+    
+    def __str__(self):
+        return f'{self.name} is a {self.species}'
+    
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name, species='Dog')
+        self.breed=breed
+        
+    def make_sound(self):
+        return 'Woof!'
+    
+    def fetch(self):
+        return f'{self.name} is fetching the ball'
+
+class Cat(Animal):
+    def __init__(self, name, color):
+        super().__init__(name, species='Cat')
+        self.color=color
+        
+    def make_sound(self):
+        return 'Meow!'
+    
+    def scratch(self):
+        return f'{self.name} is scratching the furniture'
+
+class Bird(Animal):
+    def __init__(self, name, wing_span):
+        super().__init__(name, species='Bird')
+        self.wing_span=wing_span
+        
+    def make_sound(self):
+        return 'Chirp!'
+    
+    def fly(self):
+        return f'{self.name} is flying with a {self.wing_span} meters'
+    
+class Zoo:
+    def __init__(self, name):
+        self.name=name
+        self.animals=[]
+        
+    def add_animal(self, animal):
+        self.animals.append(animal)
+        print(f'{animal.name} the {animal.species} has been added to {self.name} zoo')
+        
+    def make_all_sounds(self):
+        for animal in self.animals:
+            print(animal.make_sound())
+    
+    def feed_all(self):
+        for animal in self.animals:
+            print(f'Fedding {animal.name} the {animal.species}')
+    
+if __name__=='__main__':
+    zoo=Zoo(name='Wildlife Park')
+    buddy=Dog(name='Buddy', breed='Golden Retrieven')
+    whiskers=Cat(name='Whiskers', color='Tabby')
+    tweety=Bird(name='Tweety', wing_span=0.3)
+    
+    zoo.add_animal(buddy)
+    zoo.add_animal(whiskers)
+    zoo.add_animal(tweety)
+    
+    zoo.make_all_sounds()
+    
+    zoo.feed_all()
