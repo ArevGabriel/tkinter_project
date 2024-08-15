@@ -1,0 +1,98 @@
+import tkinter as tk
+from tkinter import simpledialog, messagebox,scrolledtext
+
+class Order:
+    def __init__(self, customer_name, items, is_member, status='pending'):
+        self.customer_name=customer_name
+        self.items=items
+        self.is_member=is_member
+        self.status=status
+        
+    def calculate_cost(self):
+        total_cost=0
+        for item, quantity in self.items.items():
+            cost_per_item=5
+            total_cost+=cost_per_item*quantity
+        discount=0.9 if self.is_member else 1.0
+        return total_cost*discount
+    
+class OrderManager:
+    def __init__(self):
+        self.orders=[]
+        
+    def add_order(self, order):
+        self.orders.append(order)
+        
+    def cancel_order(self, index):
+        if 0<=index<len(self.orders):
+            self.orders[index].status='cancelled'
+    
+    def confirm_order(self, index):
+        if 0<=index<len(self.orders):
+            self.orders[index].status='confirmed'
+        
+    def get_orders(self):
+        return self.orders
+    
+class OrderGUI:
+    def __init__(self):
+        self.manager=OrderManager()
+        self.root=tk.Tk()
+        self.root.title('Supermarket Order System')
+        
+        self.text_area=scrolledtext.ScrolledText(self.root, width=50, height=20)
+        self.text_area.pack()
+        
+        self.add_button=tk.Button(self.root, text='Add Button', command=self.add_order)
+        self.add_button.pack()
+        
+        self.confirm_button=tk.Button(self.root, text='Confirm Button', command=lambda:self.update_order_status('confirmed'))
+        self.confirm_button.pack()
+        
+        self.cancel_button=tk.Button(self.root, text='Cancel Button', command=lambda: self.update_order_status('canceled'))
+        self.cancel_button.pack()
+        
+        self.show_button=tk.Button(self.root, text='Show Button', command=self.show_orders)
+        self.show_button.pack()
+        
+    def add_order(self):
+        name=simpledialog.askstring('Input','Enter customer name:', parent=self.root)
+        items_str=simpledialog.askstring('Input', 'Enter items (name:quantity, separated by commas): ', parent=self.root)
+        is_member=messagebox.askyesno('Membership', 'Is the customer a member', parent=self.root)
+        
+        status='pending'
+        
+        if name and items_str:
+            try:
+                items=dict(item.split(':') for item in items_str.split(','))
+                items={k.strip():int(v.strip()) for k, v in items.items() if k.strip() and v.strip().isdigit()}
+                order=Order(name, items, is_member, status)
+                self.manager.add_order(order)
+                messagebox.showinfo('Success','Order added succesfully', parent=self.root)
+            except ValueError:
+                messagebox.showerror('Error','Invalid item format. Please enter as item1:quantity1, item2:quantity2', parent=self.root)              
+   
+    def update_order_status(self, status):
+        index=simpledialog.askinteger('Input','Enter order index:',parent=self.root)
+        if index is not None:
+            if 0<=index<len(self.manager.get_orders()):
+                if status=='confirmed':
+                    self.manager.confirm_order(index)
+                elif status=='cancelled':
+                    self.manager.cancel_order(index)
+                    messagebox.showinfo('Success',f'Order {status}. ', parent=self.root)
+                else:
+                    messagebox.showerror('Error', 'Invalid order index', parent=self.root)
+              
+              
+    def show_orders(self):
+        self.text_area.delete(1.0, tk.END)
+        for i,o in enumerate(self.manager.get_orders()):
+            items_str=','.join(f'{item}:{quantity}' for item, quantity in o.items.items())
+            self.text_area.insert(tk.END, f'Order {i}:{o.customer_name}, Items: {items_str}, Member: {'yes' if o.is_member else 'no'} status:{o.status}, Cost:${o.calculate_cost():2f}')
+    def run(self):
+        self.root.mainloop()
+        
+if __name__=='__main__':
+    app=OrderGUI()
+    app.run()
