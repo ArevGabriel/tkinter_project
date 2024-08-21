@@ -1,0 +1,169 @@
+import tkinter as tk
+from tkinter import messagebox
+import datetime
+
+class Employee:
+    def __init__(self, name, hourly_rate):
+        self.name=name
+        self.hourly_rate=hourly_rate
+        self.check_in_time=None
+        self.check_out_time=None
+        self.total_hours=0
+        
+    def check_in(self):
+        self.check_in_time=datetime.datetime.now()
+        
+    def check_out(self):
+        if self.check_in_time:
+            self.check_out_time=datetime.datetime.now()
+            hours_worked=(self.check_out_time-self.check_in_time)/3600
+            self.total_hours+=hours_worked
+            self.check_in_time=0
+            return self.total_hours
+        return None
+    
+    def add_hours(self, hours):
+        self.total_hours+=hours
+    
+    def get_total_hours(self):
+        return self.total_hours
+    
+    def calculate_salary(self):
+        return self.total_hours*self.hourly_rate
+    
+class WorkHourTrackerApp:
+    def __init__(self,root):
+        self.root=root
+        self.root.title('Work Hour Tracker')
+        
+        font=('Arial', 12)
+        
+        self.employees={}
+        
+        self.name_label=tk.Label(root, text='Name of the employee', font=font)
+        self.name_label.grid(row=0, column=0, padx=10, pady=10)
+        
+        self.name_entry=tk.Entry(root, font=font)
+        self.name_entry.grid(row=0, column=1, padx=10, pady=10)
+        
+        self.rate_label=tk.Label(root, text='Hourly pay', font=font)
+        self.rate_label.grid(row=0, column=2, padx=10, pady=10)
+        
+        self.rate_entry=tk.Entry(root, font=font)
+        self.rate_entry.grid(row=0, column=3, padx=10, pady=10)
+        
+        self.register_button=tk.Button(root, text='Register', command=self.register_employee, font=font)
+        self.register_button.grid(row=0, column=4, padx=10, pady=10)
+        
+        self.check_in_button=tk.Button(root, text='Sign in', command=self.check_in, font=font)
+        self.check_in_button.grid(row=1, column=0, padx=10, pady=10)
+        
+        self.check_out_button=tk.Button(root, text='Exit', command=self.check_out, font=font)
+        self.check_out_button.grid(row=1, column=1, padx=10, pady=10)
+        
+        self.show_hours_button=tk.Button(root, text='Show hours', command=self.show_total_hours, font=font)
+        self.show_hours_button.grid(row=1, column=2, padx=10, pady=10)
+        
+        self.add_hours_label=tk.Label(root, text='Add hours', font=font)
+        self.add_hours_label.grid(row=2, column=0, padx=10, pady=10)
+        
+        self.add_hours_entry=tk.Entry(root, font=font)
+        self.add_hours_entry.grid(row=2, column=1, padx=10, pady=10)
+        
+        self.add_hours_button=tk.Button(root, text='Add hours', command=self.add_hours, font=font)
+        self.add_hours_button.grid(row=2, column=2, padx=10, pady=10)
+        
+        self.show_salary_button = tk.Button(root, text="Calculate salary", command=self.calculate_salary, font=font)
+        self.show_salary_button.grid(row=2, column=3, padx=10, pady=10)
+
+        self.show_employees_button = tk.Button(root, text="Show the workers", command=self.show_employees, font=font)
+        self.show_employees_button.grid(row=3, column=1, padx=10, pady=10)
+        
+    def register_employee(self):
+        name=self.name_entry.get()
+        hourly_rate=self.rate_entry.get()
+        
+        if name and hourly_rate:
+            if name not in self.employees:
+                try:
+                    hourly_rate=float(hourly_rate)
+                    self.employees[name]=Employee(name, hourly_rate)
+                    messagebox.showinfo('Success', f'Employee {name} registered successfully')
+                    self.show_employees()
+                except ValueError:
+                    messagebox.showwarning('Warning', 'Please enter a valid hourly rate')
+            else:
+                messagebox.showwarning('Warning', 'Employee already exists')
+        else:
+            messagebox.showwarning('Warning', 'Please enter a name and horly rate')
+            
+    def check_in(self):
+        name=self.name_entry.get()
+        if name in self.employees:
+            self.employees[name].check_in()
+            messagebox.showinfo('Check In', f'{name} check in successfully!')
+        else:
+            messagebox.showwarning('Warning','Employee not found. Please register first')
+            
+    def check_out(self):
+        name= self.name_entry.get()
+        if name is self.employees:
+            hours_worked=self.employees[name].check_out()
+            if hours_worked is not None:
+                messagebox.showinfo('Check Out', f'{name} check out successfully. hours worked {hours_worked}:.2f')
+            else:
+                messagebox.showwarning('Warning','Please check in first.')
+        else:
+            messagebox.showwarning('Warning','Name not found. Please register first.')
+                
+    
+    
+    def add_hours(self):
+        name=self.name_entry.get()
+        hours=self.add_hours_entry.get()
+        
+        if name in self.employees:
+            try:
+                hours=float(hours)
+                self.employees[name].add_hours(hours)
+                messagebox.showinfo('ADD Hours',f"Added {hours:.2f} hours to {name}'s total")
+            except ValueError:
+                messagebox.showerror('Warning', 'Please enter a valid number of hours')
+        else:
+            messagebox.showerror('Warning', 'Employee not found. Please register first.')
+        
+    def show_total_hours(self):
+        name=self.name_entry.get()
+        
+        if name in self.employees:
+            total_hours=self.employees[name].get_total_hours()
+            messagebox.showinfo('Total Hours',f'Total hours worked by {name}: {total_hours:.2f} hours')
+        else:
+            messagebox.showwarning('Warning','Employee not found. Please register again')
+            
+    
+    def calculate_salary(self):
+        name=self.name_entry.get()
+        
+        if name in self.employees:
+            salary=self.employees[name].calculate_salary()
+            messagebox.showinfo('Salary',f"{name}'s calculated salary: ${salary:.2f}")
+        else:
+            messagebox.showwarning('Warning','Employee not found. Please register first.')
+            
+    def show_employees(self):
+        employees_window=tk.Toplevel(self.root)
+        employees_window.title('Registered employees')
+        
+        text_area=tk.Text(employees_window, font=('Arial', 12))
+        text_area.pack(expand=True, fill='both')
+        
+        for name, employee in self.employees.items():
+            total_hours=employee.get_total_hours()
+            salary=employee.calculate_salary()
+            text_area.insert(tk.END,f'Anuny:{name}\n Jamery: {total_hours:.2f}\n Ashxatavardzy: ${salary:.2f}\n\n')
+            
+if __name__=='__main__':
+    root=tk.Tk()
+    app=WorkHourTrackerApp(root)
+    root.mainloop()
