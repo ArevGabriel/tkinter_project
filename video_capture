@@ -1,0 +1,30 @@
+import cv2
+import datetime
+
+cap=cv2.VideoCapture(0)
+if not cap.isOpened():
+    print('The camera could not be opened')
+    exit()
+    
+
+fourcc=cv2.VideoWriter_fourcc(*'XVID')
+output_filename=datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')+'.avi'
+out=cv2.VideoWriter(output_filename, fourcc, 20.0, (640, 480))
+
+while True:
+    ret, frame=cap.read()
+    if not ret:
+        print('Failed to get frame')
+        break
+    out.write(frame)
+    cv2.imshow('Recording...', frame)
+    
+    if cv2.waitKey(1) & 0XFF==ord('q'):
+        break
+    
+cap.release()
+out.release()
+cv2.destroyAllWindows()
+
+print(f'Video saved as {output_filename}')
+
