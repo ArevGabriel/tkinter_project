@@ -14,7 +14,7 @@ while True:
     ret, frame = cap.read()
 
     if not ret:
-        print("Չհաջողվեց ստանալ կադրը")
+        print("Failed to get frame")
         break
 
     # Convert the frame to black and white (easier to process)
