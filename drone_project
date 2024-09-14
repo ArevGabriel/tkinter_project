@@ -1,0 +1,50 @@
+from djitellopy import Tello 
+import time
+
+# Connect to the Tello drone
+drone=Tello()
+
+# Connect to the drone
+drone.connect()
+
+# Check battery level
+print(f'Battery level: {drone.get_battery()}%')
+
+# Take off
+drone.takeoff()
+
+# Move the drone forward by 50 cm
+drone.move_forward(50)
+time.sleep()
+
+# Rotate the drone clockwise by 90 degrees
+drone.rotate_clockwise(90)
+time.sleep()
+
+# Move the drone up by 50 cm
+drone.move_up(50)
+time.sleep(2)
+
+# Move the drone right
+drone.move_right(20)
+time.sleep(2)
+
+# Move the drone to left
+drone.move_left(30)
+time.sleep(2)
+
+# Rotate the drone counterclockwise by 90 degrees
+drone.rotate_counter_clockwise(90)
+time.sleep(2)
+
+# Move the drone backward by 50 cm
+drone.move_back(50)
+time.sleep(2)
+
+# Land the drone
+drone.land()
+
+# End the connection
+drone.end()
+
+
