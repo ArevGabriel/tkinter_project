@@ -1,0 +1,123 @@
+import random
+
+
+class DataBatchIterator:
+    def __init__(self, data, batch_size):
+        self.data = data
+        self.batch_size = batch_size
+        self.index = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index >= len(self.data):
+            raise StopIteration
+        batch = self.data[self.index:self.index + self.batch_size]
+        self.index += self.batch_size
+        return batch
+    
+    def reset(self):
+        self.index=0
+        
+    def shuffle(self):
+        random.shuffle(self.data)
+        self.reset()
+        
+    def remaining_data(self):
+        return self.data[self.index:]
+    
+    def peek(self):
+        return self.data[self.index:self.index+self.batch_size]
+    
+def filter_data(data, conditions):
+        for item in data:
+            if all(condition(item) for condition in conditions):
+                yield item
+                
+def process_complex_data(data, depth=1):
+        for section in data:
+            if isinstance(section['items'], list):
+                for item in section['items']:
+                    if isinstance(item, dict) and depth>1:
+                        yield from process_complex_data([item], depth-1)
+                        
+                    else:
+                        yield item
+            else:
+                yield section['items']
+                    
+def advanced_batch_filter(data, batch_size, conditions, complex_processing=False, depth=1):
+        iteration=DataBatchIterator(data, batch_size)
+        for batch in iteration:
+            if complex_processing:
+                processed_data=process_complex_data(batch, depth)
+                yield from filter_data(processed_data, conditions)
+            else:
+                yield from filter_data(batch, conditions)
+                
+def is_even(n):
+    return n%2==0
+
+def is_odd(n):
+    return n%2!=0
+
+def greater_than_five(n):
+    return n>5
+
+def less_than_fifty(n):
+    return n<50
+
+def generate_sequentical_data(start, end ):
+    for  i in range(start, end):
+        yield i
+        
+def generate_random_data(count, start, end):
+    for _ in range(count):
+        yield random.randint(start, end)
+
+def generate_complex_data(sections, items_per_section):
+    for i in range(1, sections+1):
+        section={
+            'section':f'Section{i}',
+            'items':[{'id':random.randint(1,100)}for _ in range (items_per_section)]}
+    yield section
+    
+print('Example 1:Advanced Batch processing with shuffle and reset')
+data=list(generate_sequentical_data(1,100))
+iterator=DataBatchIterator(data, 10)
+
+iterator.shuffle()
+
+for batch in iterator:
+    print(batch)
+    
+print('\nReseting and showing next batch:')
+
+iterator.reset()
+print(iterator.peek())
+
+print('\n')
+
+print('Example 2:Filter even numbers less than 50 and greater than 5')
+filtered_data=filter_data(data, [is_even, greater_than_five,less_than_fifty])
+for item in filtered_data:
+    print(item)
+    
+print('\n')
+
+
+print('Example 4:Batch filtering of numbers greater than 5 and less than 50(even and odd)')
+filtered_batches=advanced_batch_filter(data, 10, [greater_than_five, less_than_fifty], complex_processing=False)
+
+for batch in filtered_batches:
+    print(batch)
+    
+print('Example 5:Batch filtering with nested data processing and conditions')
+nested_data=list(generate_complex_data(3,4))
+filtered_complex_batches=advanced_batch_filter(nested_data,2, [is_even],complex_processing=True, depth=2)
+
+for batch in filtered_complex_batches:
+    print(batch)
+
+        
