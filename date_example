@@ -1,0 +1,67 @@
+import os
+import sys
+import datetime
+
+def show_system_info():
+    print('System Platmorm:' , sys.platform)
+    print('Python Version:' , sys.version)
+    print('System Path:' , sys.path)
+    print('Executable Path:' , sys.executable)
+    
+def list_files_in_directory(path='.'):
+    print(f'Files in {path} directory')
+    try:
+        for item in os.listdir(path):
+            if os.path.isfile(os.path.join(path,item)):
+                print(item)
+    except Exception as e:
+        print(f'Error {e}')
+        
+def show_env_variables():
+    print('Enviroment Variables:')
+    for key, value in os.environ.items():
+        print(f'{key}:{value}')
+        
+def current_datetime():
+    now=datetime.datetime.now()
+    print('Current date and time', now.strftime('%Y-%m-%d %H:%M:%S'))
+    
+def date_difference(date1_str, date2_str):
+    date1=datetime.datetime.strptime(date1_str,'%Y-%m-%d')
+    date2=datetime.datetime.strptime(date2_str,'%Y-%m-%d')
+    delta=date2-date1
+    
+    print(f'Diferrence between {date2} and {date1}', delta.days, 'days')
+    
+def main():
+    print('System Information')
+    show_system_info()
+    
+    print('\nFiles in Current Directory')
+    list_files_in_directory()    
+    
+    print('\nEnviroment Variables')
+    show_env_variables()
+    
+    print('\nCurrent date and time')
+    current_datetime()
+    
+    print('\nDate difference example')
+    date1='2023-01-01'
+    date2='2024-01-01'
+    
+    date_difference(date1,date2)
+
+if __name__=='__main__':
+    main()
+    
+    
+    
+    
+    
+    
+    
+    
+            
+    
+    
