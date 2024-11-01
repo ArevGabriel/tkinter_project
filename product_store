@@ -1,0 +1,85 @@
+import os
+import sys
+from datetime import datetime
+
+products={
+    1: {'name':'Laptop', 'price':1000, 'stock':5},
+    2: {'name':'Phone', 'price':500, 'stock':10},
+    3: {'name':'Headphones', 'price':1500, 'stock':15},
+    
+} 
+
+users={}
+
+def register_user(username):
+    if username in users:
+        print(f'User {username} already registered')
+    else:
+        users[username]={'cart':[],'registered_at':datetime.now()}
+        print(f'User {username} registered successfully at {users[username]['registered_at']}')
+        
+def add_to_cart(username, product_id, quantity):
+    if username not in users:
+        print(f'User {username} is not registered')
+        return
+    
+    if product_id in products:
+        product=products[product_id]
+        if product['stock']>=quantity:
+            users[username]['cart'].append((product['name'],quantity,product['price']))
+            product['stock']-=quantity
+            print(f"Added {quantity} of {product["name"] } to {username}'s cart")
+        else:
+            print(f'Not enough stock for {product['name']}!')
+    else:
+        print('Product not found')
+        
+def view_cart(username):
+    if username not in users:
+        print(f'User {username} is not found')
+        return
+    print(f"\n{username}'s Cart")
+    
+    for item in users[username]['cart']:
+        print(f'-{item[0]}, Quantity:{item[1]}, Unit Price:${item[2]}')
+    print()
+    
+def save_inventory_log():
+    log_dir='logs'
+    os.makedirs(log_dir,exist_ok=True)
+    
+    log_file=os.path.join(log_dir, f'inventory_{datetime.now().strftime("%Y%m%d")}.txt')
+    with open(log_file,'a') as f:
+        f.write(f'Inventory log at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n')
+        for product_id, product in products.items():
+            f.write(f'{product['name']}:{product['stock']} in stock\n')
+        f.write('\n')
+        
+    print(f'Inventory log saved to {log_file}')
+        
+        
+def main():
+    print('Welcome to the Python online store!')
+    
+    print('Python path',sys.path)
+    print('Python version',sys.version)
+    print('Current directory',os.getcwd())
+    
+    print('Current directory contents:')
+    for file in os.listdir(os.getcwd()):
+        print(f'-{file}')
+        
+    register_user('Alice')
+    add_to_cart('Alice', 1, 2)
+    add_to_cart('Alice', 2,1)
+    view_cart('Alice')
+    
+    print('Current date and time', datetime.now().strftime("%d/%m/%Y, %H:%M:%S"))
+    
+    save_inventory_log()
+    
+if __name__=='__main__':
+    main()
+    
+    
+    
