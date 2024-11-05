@@ -1,0 +1,76 @@
+import itertools
+
+# List of jewelry
+jewelry_items = [
+    {'name': 'Golden Necklace', 'price': 120.00},
+    {'name': 'Silver Ring', 'price': 45.00},
+    {'name': 'Diamond Earrings', 'price': 200.00},
+    {'name': 'Emerald Bracelet', 'price': 80.00},
+    {'name': 'Pearl Pendant', 'price': 65.00}
+]
+
+# Basket
+shopping_cart = []
+
+def display_items(items):
+    """Display the jewelry list"""
+    print("List of values:")
+    for idx, item in enumerate(items, start=1):
+        print(f"{idx}. {item['name']} - ${item['price']:.2f}")
+
+def add_to_cart(item_index, quantity=1):
+    """Add jewelry to cart"""
+    item = jewelry_items[item_index]
+    shopping_cart.append({'item': item, 'quantity': quantity})
+
+def view_cart():
+    """View cart contents"""
+    if not shopping_cart:
+        print("Cart is empty։")
+        return
+
+    print("Cart Contents:")
+    total = 0
+    for cart_item in shopping_cart:
+        item = cart_item['item']
+        quantity = cart_item['quantity']
+        item_total = item['price'] * quantity
+        print(f"{item['name']} x {quantity} - ${item_total:.2f}")
+        total += item_total
+
+    print(f"Total cost: ${total:.2f}")
+
+def checkout():
+    """Payment"""
+    print("Thank you for shopping!")
+    shopping_cart.clear()
+
+def main():
+    """Customs function"""
+    while True:
+        print("\n--- Online Jewelry Store ---")
+        display_items(jewelry_items)
+        
+        choice = input("Enter a gem number (1-5) or 'exit' to exit: ")
+        
+        if choice.lower() == 'exit':
+            break
+        
+        try:
+            item_index = int(choice) - 1
+            if item_index < 0 or item_index >= len(jewelry_items):
+                raise ValueError("Wrong number of jewelry.")
+            
+            quantity = input("Enter the quantity (default: 1): ") or 1
+            add_to_cart(item_index, int(quantity))
+            
+            if input("Want to see the shopping cart? (yes/no): ").lower() == 'yes':
+                view_cart()
+            
+            if input("Do you want to make a payment? (yes/no): ").lower() == 'yes':
+                checkout()
+        except ValueError as e:
+            print(f"Wrong. {e}")
+
+if __name__ == "__main__":
+    main()
