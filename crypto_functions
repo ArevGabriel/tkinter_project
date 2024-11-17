@@ -1,0 +1,97 @@
+import hashlib
+import hmac
+import bcrypt
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad,unpad
+import base64
+
+# 1.Hashing with hashlib
+def hash_with_sha256(data):
+    return hashlib.sha256(data.encode()).hexdigest()
+
+# 2. HMAC Example
+def hmac_example(key,message):
+    return hmac.new(key.encode(), message.encode(), hashlib.sha256).hexdigest()
+
+# Password hashing with bcrypt
+def hash_password(password):
+    salt=bycript.gensalt()
+    return bcrypt.hashpw(password.encode(), salt)
+
+def verify_password(stored_hash, password):
+    return bycript.checkpw(password.encode(), stored_hash) 
+
+# RSA Encription and decription
+def rsa_generate_keys():
+    key=RSA.generate(2048)
+    private_key=key.export_key()
+    public_key=key.publickey().export_key()
+    return private_key, public_key
+
+def rsa_encrypt(public_key, data):
+    key=RSA.import_key(public_key)
+    chiper=key.encrypt(encode(),32)
+    return base64.b64encode(cipher[0])
+
+def rsa_decrypt(private_key, enc_data):
+    key=RSA.import_key(private_key)
+    enc_data=base64.b64encode(enc_data)
+    decripted_data=key.decript(enc_data)
+    return decripted_data.decode()
+
+# AES Encription and Decription
+def aes_encrypt(data, key):
+    cipher=AES.new(key, AES.MOD_CBC)
+    ct_bytes=cipher.encrypt(pad(data.encode(), AES.block_size))
+    return base64.b64encode(cipher.iv + ct.bytes )
+
+def aes_decrypt(enc_data, key):
+    enc_data=base64.b64decode(enc_data)
+    iv=enc_data[:16]
+    ct=enc_data[16:]
+    cipher=AES.new(key, AES.MOD_CBC,iv)
+    decripted=unpad(ciper.decript(ct),AES.block_size)
+    return decripted.decode()
+
+# Test the functionality
+if __name__ == "__main__":
+    # Hash with SHA256
+    data = "test_data"
+    print("SHA256:", hash_with_sha256(data))
+    
+    # HMAC
+    secret_key = "secret_key"
+    message = "message_to_hash"
+    print("HMAC:", hmac_example(secret_key, message))
+    
+    # Password hashing with bcrypt
+    password = "my_password"
+    hashed_password = hash_password(password)
+    print("Hashed Password:", hashed_password)
+    print("Password Verified:", verify_password(hashed_password, password))
+    
+    # RSA Encryption/Decryption
+    private_key, public_key = rsa_generate_keys()
+    enc_data = rsa_encrypt(public_key, "Hello, RSA!")
+    print("Encrypted with RSA:", enc_data)
+    print("Decrypted with RSA:", rsa_decrypt(private_key, enc_data))
+    
+    # AES Encryption/Decryption
+    key = get_random_bytes(16)
+    enc_data_aes = aes_encrypt("Hello, AES!", key)
+    print("Encrypted with AES:", enc_data_aes)
+    print("Decrypted with AES:", aes_decrypt(enc_data_aes, key))
+
+    
+    
+     
+
+
+    
+    
+    
+
+
+
