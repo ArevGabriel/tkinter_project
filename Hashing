@@ -1,0 +1,107 @@
+import hashlib
+import hmac
+import bcrypt
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad,unpad
+import base64
+
+# Hashing with MD5
+def hash_with_md5(data):
+    return hashlib.md5(data.encode()).hexdigest()
+
+# Hashing with SHA1
+def hash_with_sha1(data):
+    return hashlib.sha1(data.encode()).hexdigest()
+
+# File integrity check with hashlib
+def file_integrity_check(file_path):
+    sha256=hashlib.sha256()
+    with open(file_path,'rb') as f:
+        while chunk:=f.read(8192):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+# Hashmac example with different hash algorithms
+def hmac_with_md5(key, message):
+    return hmac.new(key.encode(),message.encode(),hashlib.md5).hexdigest()
+
+# Advanced bycrypt usage
+def bycript_check_salt(password, salt):
+    hashed=bcrypt.hashpw(password.encode(), salt)
+    return hashed
+
+# RSA key generation with saving to file
+def rsa_generate_and_save_keys():
+    key=RSA.generate(2048)
+    private_key=key.export()
+    public_key=key.public_key().export_key()
+    
+    with open('private.pem','wb') as priv_file:
+        priv_file.write(private_key)
+    with open('public.pem','wb') as pub_file:
+        priv_file.write(public_key)
+    return 'Keys saved to files'
+
+# RSA Encription using PKCS1_OAEP
+def rsa_encrypt_oaep(public_key, enc_data):
+    key=RSA.import_key(public_key)
+    cipher=PKCS1_OAEP.new(key)
+    decripted_data=cipher.decrypt(base64.b64decode(enc_data))
+    return decripted_data.decode()
+
+def rsa_decrypt_oaep(private_key, enc_data):
+    key=RSA.import_key(private_key)
+    cipher=PKCS1_OAEP.new(key)
+    decripted_data=cipher.decrypt(base64.b64decode(enc_data))
+    return decripted_data.encode()
+    
+
+def aes_encrypt_gsm(data,key):
+    key=AES.new(key, AES.MODE_GCM)
+    ciphertext, tag=cipher.encrypt_and_digest(data.encode())
+    return base64.b64encode(cipher.nonce+tag+ciphertext)
+
+def aes_decrypt_gsm(enc_data, key):
+    enc_data=base64.b64decode(enc_data)
+    nonce=enc_data[:16]
+    tag=enc_data[16:32]
+    ciphertext=enc_data[32:]
+    cipher=AES.new(key, AES.MODE_GCM, nonce=nonce)
+    return cipher.decrypt_and_verify(ciphertext, tag).decode()
+    
+    
+if __name__=='__main__':
+    print('MD5', hash_with_md5('example_data'))
+    print('SHA1', hash_with_sha1('example_data'))
+    
+    secret_key='secure_key'
+    message='Message to authenticate'
+    print('HMAC with md5', hmac_with_md5(secret_key,message))
+    
+    password='secure_password'
+    salt=bcrypt.gensalt
+    print('Bycript with salt', bycript_check_salt(password,salt))
+    
+    rsa_generate_and_save_keys()
+    
+    private_key, public_key=rsa_generate_keys()
+    enc_data_rsa=rsa_encrypt_oaep(public_key, 'Sensitive_data')
+    print('Encrypdet DATA(OAEP)', enc_data_rsa)
+    print('Decrypted DATA(OAEP)', rsa_decrypt_oaep(private_key, enc_data_rsa))
+    
+    key=get_random_bytes(16)
+    enc_data_aes_gcm=aes_encrypt_gsm('Highly secure message', key)
+    print('Encrypdet AES(GSM)', enc_data_aes_gcm)
+    print('Decrypted AES(GSM)', aes_decrypt_gsm(enc_data_aes_gcm, key))
+    
+              
+          
+    
+    
+    
+    
+
+        
+    
