@@ -1,0 +1,69 @@
+import click
+import argparse
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+
+
+# 1. Argparse Section
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Project using Kivy, Click, and argparse.")
+    parser.add_argument('--cli', action='store_true', help="Run the CLI mode")
+    parser.add_argument('--greet', type=str, default="World", help="Greeting message for CLI")
+    args = parser.parse_args()
+    return args
+
+
+# 2. Click Section
+@click.command()
+@click.option('--name', default="Friend", help="Name to greet")
+def run_cli(name):
+    click.echo(f"Hello, {name}! This is the CLI.")
+
+
+# 3. Kivy Section
+class MyKivyApp(App):
+    def build(self):
+        self.layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+
+        self.label = Label(text="Welcome to the Kivy GUI!")
+        self.layout.add_widget(self.label)
+
+        self.input_field = TextInput(hint_text="Enter your name", multiline=False)
+        self.layout.add_widget(self.input_field)
+
+        self.button = Button(text="Greet")
+        self.button.bind(on_press=self.greet)
+        self.layout.add_widget(self.button)
+
+        self.exit_button = Button(text="Exit")
+        self.exit_button.bind(on_press=self.exit_app)
+        self.layout.add_widget(self.exit_button)
+
+        return self.layout
+
+    def greet(self, instance):
+        name = self.input_field.text or "Guest"
+        self.label.text = f"Hello, {name}! This is the GUI."
+
+    def exit_app(self, instance):
+        App.get_running_app().stop()
+
+
+# 4. Main Logic
+def main():
+    args = parse_arguments()
+
+    if args.cli:
+        # CLI Mode
+        print(f"CLI Mode Activated: Greeting '{args.greet}'")
+        run_cli()  # Run the Click CLI
+    else:
+        # GUI Mode
+        MyKivyApp().run()  # Run the Kivy GUI
+
+
+if __name__ == "__main__":
+    main()
