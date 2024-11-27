@@ -1,0 +1,173 @@
+from abc import ABC, abstractmethod
+from sympy import symbols, Eq, solve, diff, integrate, sin, pi
+from scipy.optimize import minimize
+import numpy as np
+
+class Database:
+    _instance=None
+    
+    def __new__(cls):
+        if cls._instance==None:
+            cls._instance=super(Database, cls).__new__(cls)
+            cls._instance._data=[]
+            return cls._instance
+    
+    def add_entry(self, entry):
+        self._data.append(entry)
+        
+    def get_entries(self):
+        return self._data
+    
+
+class Product(ABC):
+    @abstractmethod
+    def get_details(self):
+        pass
+    
+class Electronics(Product):
+    def __init__(self, name, price):
+        self.name=name
+        self.price=price
+        
+    def get_details(self):
+        return f'Electronics: {self.name}, Price: ${self.price}'
+    
+class Clothing(Product):
+    def __init__(self, name, price):
+        self.name=name
+        self.price=price
+        
+    def get_details(self):
+        return f'Clothing: {self.name}, Price: ${self.price}'
+    
+class ProductFactory:
+    @staticmethod
+    def create_product(product_type, name, price):
+        if product_type=='electronics':
+            return Electronics(name, price)
+        elif product_type=='clothing':
+            return Clothing(name, price)
+        else:
+            raise ValueError('Unknown product type')
+        
+class Subject:
+    def __init__(self):
+        self._observers=[]
+        
+    def add_observer(self, observer):
+        self._observers.append(observer)
+        
+    def notify_observers(self, message):
+        for observer in self._observers:
+            observer.update(message)
+            
+            
+class User:
+    def __init__(self, name): 
+        self.name=name
+        
+    def update(self, message):
+        print(f'Notification for {self.name}:{message}')
+        
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount):
+        pass
+    
+class CreditCardPayment(PaymentStrategy):
+    def pay(self, amount):
+        print(f'Paid {amount} using Credit Card')
+        
+class PayPalPayment(PaymentStrategy):
+    def pay(self, amount):
+        print(f'Paid {amount} using Pay Pal')
+        
+class Cart():
+    def __init__(self):
+        self.products=[]
+        
+    def add_product(self, product):
+        self.products.append(product)
+        
+    def get_total_price(self):
+        return sum(product.price for product in self.products)
+
+class DiscountedCart(Cart):
+    def __init__(self, cart, discount):
+        super().__init__()
+        self.cart=cart
+        self.discount=discount
+        
+    def get_total_price(self):
+        return self.cart.get_total_price()* (1-self.discount)
+    
+def solve_equation():
+    x=symbols('x')
+    equation=Eq(x**2-4,0)
+    solutions=solve(equation,x)
+    print(f'Solutions to the equation x^2-4=0:{solutions}')
+    
+    
+def calculate_integral():
+    x=symbols('x')
+    function=x*sin(x)
+    result=integrate(function, (x,0,pi))
+    print(f'Integral of x * sin(x) from 0 to pi is:{result}')
+    
+def minimize_function():
+    def func(x):
+        return x**2+3*x+2
+    result=minimize(func, x0=0)
+    print(f'Minimum value of f(x)=x**2+3*x+2 is at x={result.x[0]:.2f}, f(x)={result.fun:.2f}')
+    
+if __name__=='__main__':
+    db=Database()
+    db.add_entry('System Started')
+    
+    phone=ProductFactory.create_product('electronics','Smartphone',699)
+    shirt=ProductFactory.create_product('clothing','T-shirt',29)
+    
+    subject=Subject()
+    user1=User('Alice')
+    user2=User('Bob')
+    subject.add_observer(user1)
+    subject.add_observer(user2)
+    subject.notify_observers('A new product has been added: Smartphone')
+    
+    cart=Cart()
+    cart.add_product(phone)
+    cart.add_product(shirt)
+    
+    discounted_cart=DiscountedCart(cart, 0.10)
+    print(f'Total price with discount:${discounted_cart.get_total_price():.2f}')
+    
+    payment_method=CreditCardPayment()
+    payment_method.pay(discounted_cart.get_total_price())
+    
+    print('\nPhysics/Math Examples')
+    solve_equation()
+    calculate_integral()
+    minimize_function()
+    
+    db.add_entry('Payment completed')
+    print('\nLog Entries:')
+    for entry in db.get_entries():
+        print(entry)
+    
+    
+    
+    
+    
+    
+    
+        
+    
+    
+        
+    
+    
+        
+    
+    
+       
+    
