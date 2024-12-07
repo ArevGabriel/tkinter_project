@@ -1,0 +1,109 @@
+from collections import deque, Counter, defaultdict, namedtuple, OrderedDict
+from datetime import datetime
+import setuptools
+
+class TaskManager:
+    def __init__(self):
+        # Task Queue. Use deque for efficient addition/ removal of tasks
+        self.task_queue=deque()
+        # Task Statistics. Use Counter to track task frequency
+        self.task_statistics=Counter()
+        # Task Categories. Use defaultdict to organize tasks by categories
+        self.task_categories=defaultdict(list)
+        # Task Details. Used nametuple to store detailed task information
+        self.Task=namedtuple('task',['name','category','priority'])
+        # Task history. Use OrderedDict to maintain execution order
+        self.task_history=OrderedDict()
+        
+    # Add a task to the queue    
+    def add_task(self, name, category, priority):
+        task=self.Task(name, category, priority)
+        self.task_queue.append(task)
+        self.task_statistics[name]+=1
+        self.task_categories[category].append(task)
+        print(f'Task added {task}')
+        
+    # Complete a task(remove from queue and add in history)    
+    def complete_task(self):
+        if self.task_queue:
+            task=self.task_queue.popleft()
+            self.task_history[task.name]=datetime.now()
+            print(f'Task completed: {task}')
+        else:
+            print('No tasks in the queue!')
+            
+    # Show task queue
+    def show_queue(self):
+        print('Task Queue:')
+        for task in self.task_queue:
+            print(f' -  {task}')
+            
+    # Show task statistics
+    def show_statistics(self):
+        print('Show Statistics!')
+        for task, count in self.task_statistics.items():
+            print(f'- {task}: {count} times ')
+            
+    # Show tasks by category
+    def show_categories(self):
+        print('Task Categories!')
+        for category, tasks in self.task_categories.items():
+            print(f'- {category}-{[task.name for task in tasks]} ')
+            
+    # Show task history
+    def show_history(self):
+        print('Task History!')
+        for task, timestamp in self.task_history.items():
+            print(f'- {task} completed at {timestamp}')
+
+# Main function to test TestManager
+def main():
+    manager=TaskManager()
+    
+    # Adding tasks
+    manager.add_task('Design Website','Development','High')
+    manager.add_task('Write Blog Post','Content','Medium')
+    manager.add_task('Fix Bugs','Development','High')
+    manager.add_task('Social Media Marketing','Marketing','Low')
+    manager.add_task('Prepare Presentation','Management','High')
+    
+    # Completing tasks
+    manager.complete_task()
+    manager.complete_task()
+    
+    # Show details
+    manager.show_queue()
+    manager.show_statistics()
+    manager.show_categories()
+    manager.show_history()
+    
+if '__name__'=='__main__':
+    main()
+    
+# 2. Packaging with setuptools
+setupcode="""
+from setuptools import setup
+
+setup(
+    name='task_manager',
+    version='1.0',
+    py_modules=['task_manager'],
+    install_requires=[],
+    entry_points={
+        'console_scripts': [
+            'task_manager=task_manager:main',
+        ],
+    },
+)
+"""
+with open('setup.py','w') as f:
+    f.write(setupcode)
+print('Setup.py created for packaging')
+    
+    
+    
+    
+    
+            
+        
+            
