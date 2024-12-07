@@ -1,0 +1,100 @@
+import os
+import subprocess
+import sys
+import shutil
+
+def create_virtual_environment(env_name="my_env"):
+    """Create a virtual environment."""
+    print(f"Creating virtual environment: {env_name}")
+    subprocess.run([sys.executable, "-m", "venv", env_name], check=True)
+    print(f"Virtual environment '{env_name}' created successfully.\n")
+
+def activate_virtual_environment(env_name="my_env"):
+    """Provide instructions to activate the virtual environment."""
+    activation_script = os.path.join(env_name, "Scripts", "activate") if os.name == 'nt' else os.path.join(env_name, "bin", "activate")
+    print(f"To activate the virtual environment, run:\nsource {activation_script}\n")
+
+def install_packages(env_name="my_env", packages=None):
+    """Install multiple packages in the virtual environment."""
+    if packages is None:
+        packages = ["requests", "flask", "numpy"]
+    pip_executable = os.path.join(env_name, "bin", "pip") if os.name != 'nt' else os.path.join(env_name, "Scripts", "pip.exe")
+    print(f"Installing packages {packages} in virtual environment '{env_name}'...")
+    subprocess.run([pip_executable, "install", *packages], check=True)
+    print(f"Packages {packages} installed successfully.\n")
+
+def check_python_version(env_name="my_env"):
+    """Check the Python version inside the virtual environment."""
+    python_executable = os.path.join(env_name, "bin", "python") if os.name != 'nt' else os.path.join(env_name, "Scripts", "python.exe")
+    print(f"Python version in virtual environment '{env_name}':")
+    subprocess.run([python_executable, "--version"], check=True)
+
+def check_pip_version(env_name="my_env"):
+    """Check the pip version inside the virtual environment."""
+    pip_executable = os.path.join(env_name, "bin", "pip") if os.name != 'nt' else os.path.join(env_name, "Scripts", "pip.exe")
+    print(f"Pip version in virtual environment '{env_name}':")
+    subprocess.run([pip_executable, "--version"], check=True)
+
+def freeze_requirements(env_name="my_env", requirements_file="requirements.txt"):
+    """Export installed packages to a requirements.txt file."""
+    pip_executable = os.path.join(env_name, "bin", "pip") if os.name != 'nt' else os.path.join(env_name, "Scripts", "pip.exe")
+    print(f"Exporting installed packages to '{requirements_file}'...")
+    with open(requirements_file, "w") as file:
+        subprocess.run([pip_executable, "freeze"], stdout=file, check=True)
+    print(f"Requirements saved to '{requirements_file}'.\n")
+
+def install_from_requirements(env_name="my_env", requirements_file="requirements.txt"):
+    """Install packages from a requirements.txt file."""
+    pip_executable = os.path.join(env_name, "bin", "pip") if os.name != 'nt' else os.path.join(env_name, "Scripts", "pip.exe")
+    if os.path.exists(requirements_file):
+        print(f"Installing packages from '{requirements_file}'...")
+        subprocess.run([pip_executable, "install", "-r", requirements_file], check=True)
+        print(f"Packages from '{requirements_file}' installed successfully.\n")
+    else:
+        print(f"Requirements file '{requirements_file}' not found.\n")
+        
+    def uninstall_package(env_name="my_env", package="flask"):
+    """Uninstall a package from the virtual environment."""
+    pip_executable = os.path.join(env_name, "bin", "pip") if os.name != 'nt' else os.path.join(env_name, "Scripts", "pip.exe")
+    print(f"Uninstalling package '{package}' from virtual environment '{env_name}'...")
+    subprocess.run([pip_executable, "uninstall", "-y", package], check=True)
+    print(f"Package '{package}' uninstalled successfully.\n")
+
+def list_packages(env_name="my_env"):
+    """List all installed packages."""
+    pip_executable = os.path.join(env_name, "bin", "pip") if os.name != 'nt' else os.path.join(env_name, "Scripts", "pip.exe")
+    print(f"Listing packages in virtual environment '{env_name}':")
+    subprocess.run([pip_executable, "list"], check=True)
+
+def delete_virtual_environment(env_name="my_env"):
+    """Delete the virtual environment."""
+    print(f"Deleting virtual environment: {env_name}")
+    if os.path.exists(env_name):
+        shutil.rmtree(env_name)
+        print(f"Virtual environment '{env_name}' deleted successfully.\n")
+    else:
+        print(f"Virtual environment '{env_name}' does not exist.\n")
+
+def run_script_in_env(env_name="my_env", script_name="example_script.py"):
+    """Run a Python script within the virtual environment."""
+    python_executable = os.path.join(env_name, "bin", "python") if os.name != 'nt' else os.path.join(env_name, "Scripts", "python.exe")
+    if os.path.exists(script_name):
+        print(f"Running script '{script_name}' in virtual environment '{env_name}'...")
+        subprocess.run([python_executable, script_name], check=True)
+        print(f"Script '{script_name}' executed successfully.\n")
+    else:
+        print(f"Script '{script_name}' not found.\n")
+
+if __name__ == "__main__":
+    env_name = "my_advanced_env"
+    create_virtual_environment(env_name)
+    activate_virtual_environment(env_name)
+    install_packages(env_name, ["requests", "flask", "pandas"])
+    check_python_version(env_name)
+    check_pip_version(env_name)
+    freeze_requirements(env_name)
+    install_from_requirements(env_name)
+    uninstall_package(env_name, "flask")
+    list_packages(env_name)
+    run_script_in_env(env_name, "example_script.py")  # Ensure you have this script ready for testing.
+    delete_virtual_environment(env_name)
