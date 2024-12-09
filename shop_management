@@ -1,0 +1,118 @@
+from collections import deque, Counter, defaultdict, namedtuple, OrderedDict
+from datetime import datetime
+
+#  Shop Management System
+class ShopManager:
+    def __init__(self):
+        # Product list. Use deque for efficient stock updates
+        self.product_stock=deque()
+        # Sale Statistics. Use Counter to track product sales
+        self.sales_statistics=Counter()
+        # Product Categories. Use defaultdict to organize products by categories
+        self.product_categories=defaultdict(list)
+        # Product Details. Used nametuple to store detailed product information
+        self.Product=namedtuple('product',['name','category','price','stock'])
+        # Sales history. Use OrderedDict to maintain sales order
+        self.sales_history=OrderedDict()
+        
+    # Add a product to the stock
+    def add_product(self, name, category, price, stock):
+        product=self.Product(name,category,price, stock)
+        self.product_stock.append(product)
+        self.product_categories[category].append(product)
+        print(f'Product added: {product}')
+        
+    # Sell a product
+    def sell_product(self, product_name, quantity):
+        for product in list(self.product_stock):
+            if product.name==product_name:
+                if product.stock>=quantity:
+                    # Update stock
+                    self.product_stock.remove(product)
+                    updated_product=self.Product(
+                        product.name, product.category, product.price, product.stock-quantity
+                    )
+                    if updated_product.stock>0:
+                        self.product_stock.append(updated_product)
+                        
+                    # Update statistics and history
+                    self.sales_statistics[product_name]+=quantity
+                    self.sales_history[f'{product_name} (x{quantity})']=datetime.now()
+                    print(f'Sold {quantity} of {product_name}')
+                    return
+                else:
+                    print(f'Not enough stock for {product_name}')
+                    return
+        print(f'Product {product_name} not found!')
+        
+    # Show available stock
+    def show_stock(self):
+        print('Available Stock: ')
+        for product in self.product_stock:
+            print(f' - {product}')
+            
+    # Show sales statistics
+    def show_sales_statistics(self):
+        print('Sales Statistics: ')
+        for product, count in self.sales_statistics.items():
+            print(f' - {count} : {product} sold')
+            
+    # Show products by category
+    def show_categories(self):
+        print('Product Categories: ')
+        for category, products in self.product_categories.items():
+            print(f' - {category} : {[product.name for product in products]}')
+            
+    # Show sales history
+    def show_sales_history(self):
+        print('Sales History: ')
+        for sale, timestamp in self.sales_history.items():
+            print(f'- {sale}: sold at {timestamp}')
+ 
+# Main Function to test ShopManager           
+def main():
+    manager=ShopManager()
+    
+    # Adding products
+    manager.add_product("Laptop", "Electronics", 1000, 10)
+    manager.add_product("Phone", "Electronics", 500, 20)
+    manager.add_product("Shampoo", "Personal Care", 10, 50)
+    manager.add_product("Bread", "Groceries", 2, 100)
+
+    # Selling products
+    manager.sell_product("Laptop", 2)
+    manager.sell_product("Bread", 5)
+    manager.sell_product("Shampoo", 1)
+
+    # Show details
+    manager.show_stock()
+    manager.show_sales_statistics()
+    manager.show_categories()
+    manager.show_sales_history()
+
+
+if __name__ == "__main__":
+    main()
+    
+        
+        
+            
+        
+        
+        
+        
+            
+            
+        
+        
+        
+        
+        
+    
+                
+        
+        
+        
+        
+        
+        
