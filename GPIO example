@@ -1,0 +1,118 @@
+import RPI.GPIO as GPIO
+import time
+
+# Configuring device ports
+servo_pin = 18  # Servo motor pin
+temp_sensor = 4   # Temperature sensor (you should use a DHT22 or other sensor)
+
+lcd_rs=11
+lcd_en= 12
+lcd_d4 = 13
+lcd_d5 = 15
+lcd_d6 = 16
+lcd_d7 = 18
+
+# Սարքավորման նախնական կարգավորումներ
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(servo_pin,GPIO.OUT) 
+servo=GPIO.PWM(servo_pin,50) # Servo motor frequency
+
+
+# LCD էկրանի կարգավորում (այն մոդելը, որը նախատեսված է 16x2 LCD)
+def lcd_init():
+    GPIO.setup(lcd_rs, GPIO.OUT)
+    GPIO.setup(lcd_en, GPIO.OUT)
+    GPIO.setup(lcd_d4, GPIO.OUT)
+    GPIO.setup(lcd_d5, GPIO.OUT)
+    GPIO.setup(lcd_d6, GPIO.OUT)
+    GPIO.setup(lcd_d7, GPIO.OUT)
+    
+    # LCD initial settings
+    lcd_send(0X33)
+    lcd_send(0x32)
+    lcd_send(0x28)
+    lcd_send(0X0C)
+    lcd_send(0X06)
+    lcd_send(0X01)
+    
+def lcd_send(value):
+    GPIO.output(lcd_rs, False)
+    GPIO.output(lcd_en, True)
+    GPIO.output(lcd_d4, (value >> 4) & 0x01)
+    GPIO.output(lcd_d5, (value >> 5) & 0x01)
+    GPIO.output(lcd_d6, (value >> 6) & 0x01)
+    GPIO.output(lcd_d7, (value >> 7) & 0x01)
+    GPIO.output(lcd_en,False)
+    time.sleep(0.001)
+    
+def lcd_print(msg):
+    for i in range(len(msg)):
+        lcd_send(ord(msg[i]))
+        
+# Servo motor setting
+def set_servo_angle(angle):
+    duty=angle/18+2
+    GPIO.output(servo_pin, True)
+    servo.ChangeDutyCycle(duty)
+    time.sleep(1)
+    GPIO.output(servo_pin, False)
+    servo.ChangeDutyCycle(0)
+    
+# Getting data from a temperature sensor
+def read_temperature():
+    # This should match the sensor you are using
+    # At this point, to find out this part, you need to write in the appropriate field
+    return 25  # for example 25 degree C
+
+# Product Management Section
+products={
+    'Espresso':{'price':5, 'water':200,'time':2},
+    'Americano':{'price':6,'water':250, 'time':3},
+    'Latte':{'price':7,'water':300, 'time':4}
+}
+
+def get_product_info(product_name):
+    if product_name in products:
+        return products[product_name]
+    else:
+        return {'price':'Not available', 'water':'Not available', 'time':'Not Available'}
+    
+# Basic coffee brewing system
+def prepare_coffee(coffee_type):
+    lcd_print(f'Preparing {coffee_type} . . .')
+    if coffee_type=='Espresso':
+        set_servo_angle(90) # The servo motor regulates the espresso
+    elif coffee_type=='Latte':
+        set_servo_angle(180) # Latte setup
+        
+    # Checking the temperature
+    temperature=read_temperature()
+    lcd_print(f' Temp : {temperature} degree C')
+    
+    time.sleep(5) # Preparation time
+    lcd_print(f'{coffee_type} is ready!')
+    print(f'{coffee_type} is ready!')
+    
+# Main function: coffee selection
+def main():
+    lcd_init()
+    coffee_type='Latte'  # For example Latte coffee
+    prepare_coffee(coffee_type)
+    
+if __name__=='__main__':
+    main()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
