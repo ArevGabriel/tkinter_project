@@ -1,0 +1,59 @@
+import sqlite3
+from cryptography.fernet import Fernet
+
+key = Fernet.generate_key()
+cipher = Fernet(key)
+print(f'Գաղտնագրման բանալի։ {key.decode()}')
+
+def setup_database():
+    conn = sqlite3.connect('secure_database.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+                   CREATE TABLE IF NOT EXISTS users(
+                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       username TEXT NOT NULL,
+                       password TEXT NOT NULL
+                   )
+                   ''')
+    conn.commit()
+    conn.close()
+    
+def add_user(username, password):
+    encrypted_password = cipher.encrypt(password.encode())
+    conn = sqlite3.connect('secure_database.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, encrypted_password))
+    conn.commit()
+    conn.close()
+    print(f'Օգտագործող {username} հաջողությամբ ավելացվել է')
+    
+def authenticate_user(username, password):
+    conn = sqlite3.connect('secure_database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT password FROM users WHERE username=?', (username,))
+    result = cursor.fetchone()
+    conn.close()
+    if result:
+        encrypted_password = result[0]
+        try:
+            if cipher.decrypt(encrypted_password.encode()).decode() == password:
+                print('Մուտքը հաջողվեց։ ✅')
+                return True
+            else:
+                print('Սխալ գաղտնաբառ։ ❌')
+                return False
+        except Exception as e:
+            print(f'Գաղտնագրման սխալ։ {e} ❌')
+            return False
+    else:
+        print('Օգտագործողը գոյություն չունի։ ❌')
+        return False
+
+if __name__ == '__main__':
+    setup_database()
+    add_user('john_doe', 'SecurePassword123!')
+    add_user('jane', 'Wrongord456!')
+    
+    authenticate_user('john_doe', 'SecurePassword123!')
+    authenticate_user('jane', 'WrongPassword')
+    authenticate_user('unknown_user', 'password')
