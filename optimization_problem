@@ -1,0 +1,73 @@
+import cProfile
+import pstats
+import timeit
+import line_profiler
+import py_spy
+import multiprocessing
+import threading
+import asyncio
+import numba
+import numpy as np
+
+# 1. optimization problem
+@numba.jit(nopython=True)
+def heavy_computation(n):
+    total=0
+    for i in range(n):
+        total+=i**2
+    return total
+ 
+# 2.timeit usage example
+setup_code='''
+from __main__ import heavy_computation
+n=1000000
+'''
+time_taken=timeit.timeit('heavy_computation(n)',setup=setup_code, number=10)
+print(f'Execution time with timeit: {time_taken:.5f} seconds')
+
+# 3. how to use cProfile
+def profile_example():
+    heavy_computation(1000000)
+    
+cProfile.run('profile_example()')
+
+# 4. line_profiler usage example
+profiler=line_profiler.LineProfiler()
+profiler.add_function(heavy_computation)
+profiler.enable()
+heavy_computation(1000000)
+profiler.disable()
+profiler.print_stats()
+
+# 5. for using py-spy (we create a function that will work with multiprocessing)
+def worker():
+    while True:
+        heavy_computation(500000)
+        
+def start_processes():
+    processes=[multiprocessing.Process(target=worker) for _ in range(2)]
+    for p in processes:
+        p.start()
+    for p in processes:
+        p.join()
+
+# 6.  using threading
+def thread_task():
+    print('Thread started')
+    heavy_computation(500000)
+    print('Thread finished')
+    
+threads=[threading.Thread(target=thread_task) for _ in range(2)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+# 7. using Asyncio for async function
+async def async_task():
+    print('Async task started')
+    await asyncio.sleep(1)
+    print('Async task finished')
+    
+asyncio.run(async_task())
+
