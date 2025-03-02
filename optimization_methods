@@ -1,0 +1,134 @@
+import cProfile
+import pstats
+import timeit 
+import line_profiler
+import py_spy
+import multiprocessing
+import threading
+import asyncio
+import numba 
+import numpy as np
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import os
+import time
+
+# 1.Optimization problem (Numba-JIT)
+@numba.jit(nopython=True, parallel=True)
+def heavy_computation(n):
+    total=0
+    for i in range(n):
+        total+=i**2
+        return total
+    
+# 2. Numpy version for comparison
+def numpy_computation(n):
+    return np.sum(np.arange(n, dtype=np.int64)**2)
+
+# 3. timeit usage example (comparing different approaches)
+setup_code='''
+from __main__ import heavy_computation, numpy_computation
+n=1000000
+'''
+
+time_taken_numba=timeit.timeit('heavy_computation(n)', setup=setup_code,number=10)
+time_taken_numpy=timeit.timeit('numpy_computation(n)', setup=setup_code,number=10)
+
+print(f'Execution time with Numba: {time_taken_numba:.5f} seconds')
+print(f'Execution time with Numpy: {time_taken_numpy:.5f} seconds')
+
+# 4. cProfile usage example
+def profile_example():
+    heavy_computation(1000000)
+
+cProfile.run('profile_example()')
+
+# 5. Line Profiler usage example
+profiler=line_profiler.LineProfiler()
+profiler.add_function(heavy_computation)
+profiler.enable()
+heavy_computation(1000000)
+profiler.disable()
+profiler.print_stats()
+
+# 6. multiprocessing-Worker function
+def worker(n):
+    print(f'Process {os.getpid()} started')
+    result = heavy_computation(n)
+    print(f'Process {os.getpid()} finished: {result}')
+    
+def worker(n):
+    print(f'Process {os.getpid()} started')
+    result=heavy_computation(n)
+    print(f'Process {os.getpid()} finished: {result}')
+    
+def start_processes():
+    processes=[multiprocessing.Process(target=worker, args=(5000000,)) for _ in range(4)]
+    for p in processes:
+        p.start()
+    for p in processes:
+        p.join()
+        
+# 7. Threading - different methods
+def thread_task(n):
+    print(f'Thread {threading.current_thread().name} started')
+    result = heavy_computation(n)
+    print(f'Thread {threading.current_thread().name} finished:{result}') 
+    
+def start_threads():
+    threads=[threading.Thread(target=thread_task, args=(2000000,), daemon=True) for _ in range(4)]
+    
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+        
+# 8. Asyncio-Asynchronous function
+async def async_task(n):
+    print(f'Async task started')
+    result = await asyncio.to_thread(heavy_computation, n)
+    print(f'Async task finished:{result}')
+    
+async def start_async_tasks():
+    tasks=[async_task(3000000) for _ in range(8)]
+    await asyncio.gather(*tasks)
+
+# 9. concurrent.futures- ThreadPoolExecutor/ProcessPoolExecutor
+def concurrent_thread_pool(n):
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        results=list(executor.map(heavy_computation, [3000000]*8))
+    print('ThreadPool results:', results)
+
+def concurrent_process_pool(n):
+    with ProcessPoolExecutor(max_workers=8) as executor:
+        results=list(executor.map(heavy_computation, [3000000]*8))
+    print('ProcessPool results:', results)
+    
+    
+# 10. py-spy - profiling with an external tool (py-spy must be installed)
+def run_with_pyspy():
+    os.system("py-spy top--python -c 'from __main__ import profile example; profile_example() '")
+    
+if __name__=='__main__':
+    print('Starting multiprocessing...')
+    start_processes()
+    
+    print('  Starting threading: ')
+    start_threads()
+    
+    print('Start syncio tasks')
+    asyncio.run(start_async_tasks())
+    
+    print('Running ThreadPoolExecutor....')
+    concurrent_thread_pool(3000000)
+    
+    print(' Running ProcessPoolExecutor')
+    concurrent_process_pool(3000000)
+    
+    print('Running py-spy')
+    
+    
+    
+    
+    
+    
+            
